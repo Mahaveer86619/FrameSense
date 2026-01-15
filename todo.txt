@@ -1,4 +1,4 @@
-1. Fire video.ingest SQS Event
+1. Fire video.ingest SQS Event (done)
 2. Run the video.ingest Worker microservice
 3. Generate HLS Assets
 4. Streaming Endpoint
