@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -74,4 +75,18 @@ func getEnv(key, defaultValue string) string {
 
 var lookupEnv = func(key string) (string, bool) {
 	return os.LookupEnv(key)
+}
+
+func PrettyPrintConfig() {
+	fmt.Printf("PORT: %s\n", AppConfig.PORT)
+	fmt.Printf("PROFILE: %s\n", AppConfig.PROFILE)
+	fmt.Printf("DB_HOST: %s\n", AppConfig.DB_HOST)
+	fmt.Printf("DB_PORT: %s\n", AppConfig.DB_PORT)
+	fmt.Printf("DB_USER: %s\n", AppConfig.DB_USER)
+	fmt.Printf("DB_PASSWORD: %s\n", AppConfig.DB_PASSWORD)
+	fmt.Printf("DB_NAME: %s\n", AppConfig.DB_NAME)
+	fmt.Printf("ID_SALT: %s\n", AppConfig.ID_SALT)
+	fmt.Printf("JWT_SECRET: %s\n", AppConfig.JWT_SECRET)
+	fmt.Printf("STORAGE_DRIVER: %s\n", AppConfig.STORAGE_DRIVER)
+	fmt.Printf("STORAGE_PATH: %s\n", AppConfig.STORAGE_PATH)
 }

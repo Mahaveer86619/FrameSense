@@ -13,6 +13,8 @@ services:
     depends_on:
       - db
     restart: always
+    networks:
+      - framesense-network
 
   db:
     image: postgres:latest
@@ -26,6 +28,8 @@ services:
     ports:
       - "5432:5432"
     restart: always
+    networks:
+      - framesense-network
 
   localstack:
     image: localstack/localstack:latest

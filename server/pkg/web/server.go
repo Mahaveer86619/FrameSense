@@ -7,7 +7,9 @@ import (
 
 	"github.com/Mahaveer86619/FrameSense/pkg/config"
 	"github.com/Mahaveer86619/FrameSense/pkg/handlers"
+	authMiddleware "github.com/Mahaveer86619/FrameSense/pkg/middleware"
 	"github.com/Mahaveer86619/FrameSense/pkg/services"
+	"github.com/Mahaveer86619/FrameSense/pkg/services/storage"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -31,7 +33,7 @@ func NewServer() *echo.Echo {
 	e := echo.New()
 
 	// Standard Echo Middleware
-	e.Use(middleware.Logger())
+	e.Use(middleware.RequestLogger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.Secure())
 	e.Use(middleware.Gzip())
@@ -44,14 +46,28 @@ func NewServer() *echo.Echo {
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
 
+	// Groups
+	api := e.Group("")
+	auth := e.Group("/auth")
+	protected := api.Group("/api/v1")
+
+	protected.Use(authMiddleware.Middleware)
+
 	// Services
 	healthService := services.NewHealthService()
-
-	// Groups
-	api := e.Group("/api/v1")
+	storageService, err := storage.NewStorageService()
+	if err != nil {
+		log.Fatalf("Failed to initialize storage service: %v", err)
+	}
+	userService := services.NewUserService()
+	authService := services.NewAuthService(userService)
+	videoProcessingService := services.NewVideoProcessingService(storageService)
 
 	// Handlers
 	handlers.NewHealthHandler(api, healthService)
+	handlers.NewAuthHandler(auth, authService)
+	handlers.NewUserHandler(protected, userService)
+	handlers.NewVideoProcessingHandler(protected, videoProcessingService)
 
 	return e
 }
