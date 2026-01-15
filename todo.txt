@@ -1,0 +1,5 @@
+1. Fire video.ingest SQS Event
+2. Run the video.ingest Worker microservice
+3. Generate HLS Assets
+4. Streaming Endpoint
+5. UI player test

@@ -4,19 +4,22 @@ import (
 	"context"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 type S3StorageService struct {
-	Client *s3.Client
-	Bucket string
+	Client         *s3.Client
+	Bucket         string
+	PresignClient  *s3.PresignClient
 }
 
 func NewS3StorageService(client *s3.Client, bucket string) *S3StorageService {
 	return &S3StorageService{
-		Client: client,
-		Bucket: bucket,
+		Client:        client,
+		Bucket:        bucket,
+		PresignClient: s3.NewPresignClient(client),
 	}
 }
 
@@ -89,6 +92,44 @@ func (s *S3StorageService) get(
 	}
 
 	return resp.Body, nil
+}
+
+/* ---------- Generate Presigned URLs ---------- */
+
+func (s *S3StorageService) GeneratePresignedDownloadURL(
+	path string,
+	expiration time.Duration,
+) (string, error) {
+	key := strings.TrimPrefix(path, "s3://"+s.Bucket+"/")
+
+	req, err := s.PresignClient.PresignGetObject(context.TODO(), &s3.GetObjectInput{
+		Bucket: &s.Bucket,
+		Key:    &key,
+	}, s3.WithPresignExpires(expiration))
+
+	if err != nil {
+		return "", err
+	}
+
+	return req.URL, nil
+}
+
+func (s *S3StorageService) GeneratePresignedUploadURL(
+	filename string,
+	expiration time.Duration,
+) (string, error) {
+	key := "processed/" + filename
+
+	req, err := s.PresignClient.PresignPutObject(context.TODO(), &s3.PutObjectInput{
+		Bucket: &s.Bucket,
+		Key:    &key,
+	}, s3.WithPresignExpires(expiration))
+
+	if err != nil {
+		return "", err
+	}
+
+	return req.URL, nil
 }
 
 /* ---------- Delete ---------- */

@@ -37,15 +37,39 @@ services:
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=s3
+      - SERVICES=s3,sqs
       - AWS_DEFAULT_REGION=us-east-1
     networks:
       - framesense-network
     healthcheck:
-      test: ["CMD-SHELL", "awslocal s3 ls || exit 1"]
+      test:
+        ["CMD-SHELL", "awslocal s3 ls && awslocal sqs list-queues || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+  # Optional: Kafka (if using QUEUE_DRIVER=kafka)
+  # zookeeper:
+  #   image: confluentinc/cp-zookeeper:latest
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
+  #     ZOOKEEPER_TICK_TIME: 2000
+  #   networks:
+  #     - framesense-network
+
+  # kafka:
+  #   image: confluentinc/cp-kafka:latest
+  #   depends_on:
+  #     - zookeeper
+  #   ports:
+  #     - "9092:9092"
+  #   environment:
+  #     KAFKA_BROKER_ID: 1
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #   networks:
+  #     - framesense-network
 
 volumes:
   db_data:

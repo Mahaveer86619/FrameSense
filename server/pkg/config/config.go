@@ -32,6 +32,20 @@ type Config struct {
 	S3_REGION     string
 	S3_ACCESS_KEY string
 	S3_SECRET_KEY string
+
+	// Queue Configuration
+	QUEUE_DRIVER string
+
+	// SQS Configuration
+	SQS_REGION     string
+	SQS_ACCESS_KEY string
+	SQS_SECRET_KEY string
+	SQS_ENDPOINT   string
+	SQS_QUEUE_NAME string
+
+	// Kafka Configuration
+	KAFKA_BROKERS string
+	KAFKA_TOPIC   string
 }
 
 var AppConfig Config
@@ -63,6 +77,17 @@ func LoadConfig() {
 		S3_REGION:     getEnv("S3_REGION", "us-east-1"),
 		S3_ACCESS_KEY: getEnv("S3_ACCESS_KEY", ""),
 		S3_SECRET_KEY: getEnv("S3_SECRET_KEY", ""),
+
+		QUEUE_DRIVER: getEnv("QUEUE_DRIVER", "local"),
+
+		SQS_REGION:     getEnv("SQS_REGION", "us-east-1"),
+		SQS_ACCESS_KEY: getEnv("SQS_ACCESS_KEY", ""),
+		SQS_SECRET_KEY: getEnv("SQS_SECRET_KEY", ""),
+		SQS_ENDPOINT:   getEnv("SQS_ENDPOINT", ""),
+		SQS_QUEUE_NAME: getEnv("SQS_QUEUE_NAME", "framesense-queue"),
+
+		KAFKA_BROKERS: getEnv("KAFKA_BROKERS", "localhost:9092"),
+		KAFKA_TOPIC:   getEnv("KAFKA_TOPIC", "framesense-topic"),
 	}
 }
 

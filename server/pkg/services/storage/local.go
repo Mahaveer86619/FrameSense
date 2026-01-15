@@ -1,18 +1,22 @@
 package storage
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 type LocalStorageService struct {
 	BasePath string
+	BaseURL  string // Base URL for serving files (e.g., "http://localhost:7000/uploads")
 }
 
 func NewLocalStorageService() *LocalStorageService {
 	return &LocalStorageService{
 		BasePath: "uploads",
+		BaseURL:  "http://localhost:8080/files", // todo configure via env
 	}
 }
 
@@ -84,6 +88,27 @@ func (l *LocalStorageService) GetVideo(path string) (io.ReadCloser, error) {
 
 func (l *LocalStorageService) GetHLSPlaylist(path string) (io.ReadCloser, error) {
 	return os.Open(path)
+}
+
+/* ---------- Presigned URLs ---------- */
+
+func (l *LocalStorageService) GeneratePresignedDownloadURL(
+	path string,
+	expiration time.Duration,
+) (string, error) {
+	// For local storage, return a simple URL
+	// In production, implement token-based auth
+	relativePath := filepath.ToSlash(path)
+	return fmt.Sprintf("%s/%s", l.BaseURL, relativePath), nil
+}
+
+func (l *LocalStorageService) GeneratePresignedUploadURL(
+	filename string,
+	expiration time.Duration,
+) (string, error) {
+	// For local storage, return upload endpoint
+	// In production, generate a signed token
+	return fmt.Sprintf("%s/upload/processed/%s", l.BaseURL, filename), nil
 }
 
 /* ---------- Delete ---------- */

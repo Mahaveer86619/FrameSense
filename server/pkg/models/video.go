@@ -11,6 +11,10 @@ type Video struct {
 	Title             string
 	Description       string
 	SourceFilePath    string
+	ProcessedFilePath string
+	ErrorMessage      string
+
+	HLSPlaylist       string
 	HLSMasterPlaylist string
 	Duration          string
 

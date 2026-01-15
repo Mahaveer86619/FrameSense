@@ -9,6 +9,7 @@ import (
 	"github.com/Mahaveer86619/FrameSense/pkg/handlers"
 	authMiddleware "github.com/Mahaveer86619/FrameSense/pkg/middleware"
 	"github.com/Mahaveer86619/FrameSense/pkg/services"
+	"github.com/Mahaveer86619/FrameSense/pkg/services/queue"
 	"github.com/Mahaveer86619/FrameSense/pkg/services/storage"
 
 	"github.com/labstack/echo/v4"
@@ -59,9 +60,15 @@ func NewServer() *echo.Echo {
 	if err != nil {
 		log.Fatalf("Failed to initialize storage service: %v", err)
 	}
+
+	queueService, err := queue.NewQueueService()
+	if err != nil {
+		log.Fatalf("Failed to initialize queue service: %v", err)
+	}
+
 	userService := services.NewUserService()
 	authService := services.NewAuthService(userService)
-	videoProcessingService := services.NewVideoProcessingService(storageService)
+	videoProcessingService := services.NewVideoProcessingService(storageService, queueService)
 
 	// Handlers
 	handlers.NewHealthHandler(api, healthService)

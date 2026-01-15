@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"time"
 
 	c "github.com/Mahaveer86619/FrameSense/pkg/config"
 
@@ -21,6 +22,9 @@ type StorageService interface {
 
 	SaveProcessedVideo(file io.Reader, filename string) (string, error)
 	SaveHLSPlaylist(content io.Reader, filename string) (string, error)
+
+	GeneratePresignedDownloadURL(path string, expiration time.Duration) (string, error)
+	GeneratePresignedUploadURL(filename string, expiration time.Duration) (string, error)
 
 	DeleteVideo(path string) error
 }
