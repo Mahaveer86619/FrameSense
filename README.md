@@ -80,35 +80,35 @@ This service is decoupled to:
 ## Architecture Overview
 
 +------------------+
-| Web Player |
-| (HTML5 + HLS) |
-+--------+--------+
-|
-v
+|   Web Player     |
+| (HTML5 + HLS)    |
++--------+---------+
+         |
+         v
 +------------------+
-| API Gateway | (Go)
-+--------+--------+
-|
-+--------+--------+
-| Content Service | (Go)
-+--------+--------+
-|
-+--------+--------+
-| Scene Analyzer | (Go)
-| (Subtitle NLP) |
-+--------+--------+
-|
-+--------+--------+ +----------------------+
-| Ad Decision | -----> | AI Ad Generator |
-| Engine (Go) | | (Python Microservice)|
-+--------+--------+ +----------------------+
-|
-+--------+--------+
-| Stream Stitcher | (Go + FFmpeg)
-+--------+--------+
-|
-+--------+--------+
-| HLS Output |
+|  API Gateway     |  (Go)
++--------+---------+
+         |
++--------+---------+
+| Content Service  |  (Go)
++--------+---------+
+         |
++--------+---------+
+| Scene Analyzer   |  (Go)
+| (Subtitle NLP)   |
++--------+---------+
+         |
++--------+---------+        +----------------------+
+| Ad Decision      | -----> | AI Ad Generator      |
+| Engine (Go)      |        | (Python Microservice)|
++--------+---------+        +----------------------+
+         |
++--------+---------+
+| Stream Stitcher  |  (Go + FFmpeg)
++--------+---------+
+         |
++--------+---------+
+|   HLS Output     |
 +------------------+
 
 
