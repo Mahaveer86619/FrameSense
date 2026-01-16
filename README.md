@@ -117,11 +117,10 @@ This service is decoupled to:
 ## Tech Stack
 
 ### Backend
-- Go (Gin / Fiber)
+- Go (Echo)
 - FFmpeg
 - HLS (m3u8 manipulation)
-- Redis (ad decision cache)
-- PostgreSQL / SQLite
+- PostgreSQL
 
 ### AI & Processing
 - Python (FastAPI)
@@ -135,7 +134,7 @@ This service is decoupled to:
 
 ### Infrastructure
 - Docker & Docker Compose
-- LocalStack (S3, SQS, DynamoDB simulation)
+- LocalStack (S3, SQS)
 - No real AWS account required
 
 ---
@@ -158,4 +157,7 @@ This enables:
 ## Running the Project
 
 ```bash
-docker-compose up --build
+make start
+
+```bash
+make restart
