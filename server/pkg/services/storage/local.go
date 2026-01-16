@@ -111,6 +111,14 @@ func (l *LocalStorageService) GeneratePresignedUploadURL(
 	return fmt.Sprintf("%s/upload/processed/%s", l.BaseURL, filename), nil
 }
 
+func (l *LocalStorageService) GenerateHLSUploadURL(
+	videoID uint,
+	filename string,
+	expiration time.Duration,
+) (string, error) {
+	return fmt.Sprintf("%s/upload/hls/video_%d/%s", l.BaseURL, videoID, filename), nil
+}
+
 /* ---------- Delete ---------- */
 
 func (l *LocalStorageService) DeleteVideo(

@@ -1,34 +1,40 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type VideoIngestMessage struct {
-	VideoID            uint      `json:"video_id"`
-	OwnerID            uint      `json:"owner_id"`
-	Title              string    `json:"title"`
-	SourceDownloadURL  string    `json:"source_download_url"`  // Presigned download URL
-	ProcessedUploadURL string    `json:"processed_upload_url"` // Presigned upload URL
-	ProcessedFilePath  string    `json:"processed_file_path"`  // Expected S3 path after upload
-	ExpiresAt          time.Time `json:"expires_at"`
+	JobID       string              `json:"job_id"`
+	VideoID     uint                `json:"video_id"`
+	DownloadURL string              `json:"download_url"`
+	Callback    VideoIngestCallback `json:"callback"`
+}
+
+type VideoIngestCallback struct {
+	StatusURL        string `json:"status_url"`         // POST status updates
+	UploadURL        string `json:"upload_url"`         // POST HLS files directly
+	RequestUploadURL string `json:"request_upload_url"` // GET presigned URLs
 }
 
 func NewVideoIngestMessage(
 	videoID uint,
-	ownerID uint,
-	title string,
-	sourceDownloadURL string,
-	processedUploadURL string,
-	processedFilePath string,
-	expiresAt time.Time,
+	downloadURL string,
+	callbackStatusURL string,
+	callbackUploadURL string,
+	callbackRequestUploadURL string,
 ) *VideoIngestMessage {
 	return &VideoIngestMessage{
-		VideoID:            videoID,
-		OwnerID:            ownerID,
-		Title:              title,
-		SourceDownloadURL:  sourceDownloadURL,
-		ProcessedUploadURL: processedUploadURL,
-		ProcessedFilePath:  processedFilePath,
-		ExpiresAt:          expiresAt,
+		JobID:       uuid.New().String(),
+		VideoID:     videoID,
+		DownloadURL: downloadURL,
+		Callback: VideoIngestCallback{
+			StatusURL:        callbackStatusURL,
+			UploadURL:        callbackUploadURL,
+			RequestUploadURL: callbackRequestUploadURL,
+		},
 	}
 }
 

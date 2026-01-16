@@ -5,6 +5,7 @@ import (
 	"mime/multipart"
 	"time"
 
+	"github.com/Mahaveer86619/FrameSense/pkg/config"
 	"github.com/Mahaveer86619/FrameSense/pkg/consts"
 	"github.com/Mahaveer86619/FrameSense/pkg/db"
 	"github.com/Mahaveer86619/FrameSense/pkg/models"
@@ -71,23 +72,17 @@ func (s *VideoProcessingService) UploadVideo(
 		return nil, fmt.Errorf("failed to generate download URL: %w", err)
 	}
 
-	processedFilename := fmt.Sprintf("processed_%d_%d_%s", ownerID, time.Now().Unix(), originalFilename)
-	uploadURL, err := s.Storage.GeneratePresignedUploadURL(processedFilename, urlExpiration)
-	if err != nil {
-		s.updateVideoStatus(video.ID, string(consts.VideoStatusFailed))
-		return nil, fmt.Errorf("failed to generate upload URL: %w", err)
-	}
-
-	processedPath := fmt.Sprintf("s3://%s/processed/%s", "your-bucket", processedFilename)
+	baseURL := config.AppConfig.API_BASE_URL
+	callbackStatusURL := fmt.Sprintf("%s/api/videos/%d/status", baseURL, video.ID)
+	callbackUploadURL := fmt.Sprintf("%s/api/videos/%d/hls/upload", baseURL, video.ID)
+	callbackRequestUploadURL := fmt.Sprintf("%s/api/videos/%d/hls/request-upload", baseURL, video.ID)
 
 	ingestMsg := models.NewVideoIngestMessage(
 		video.ID,
-		ownerID,
-		title,
 		downloadURL,
-		uploadURL,
-		processedPath,
-		time.Now().Add(urlExpiration),
+		callbackStatusURL,
+		callbackUploadURL,
+		callbackRequestUploadURL,
 	)
 
 	if err := s.Queue.SendVideoIngestMessage(ingestMsg); err != nil {
@@ -125,4 +120,64 @@ func (s *VideoProcessingService) HandleProcessingComplete(
 	}
 
 	return s.DB.Save(video).Error
+}
+
+func (s *VideoProcessingService) GenerateHLSUploadURL(
+	videoID uint,
+	filename string,
+) (string, error) {
+	video := &models.Video{}
+	if err := s.DB.First(video, videoID).Error; err != nil {
+		return "", fmt.Errorf("video not found: %w", err)
+	}
+
+	urlExpiration := 1 * time.Hour
+	uploadURL, err := s.Storage.GenerateHLSUploadURL(videoID, filename, urlExpiration)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate HLS upload URL: %w", err)
+	}
+
+	return uploadURL, nil
+}
+
+func (s *VideoProcessingService) UpdateVideoStatus(
+	videoID uint,
+	status string,
+	errorMessage string,
+) error {
+	video := &models.Video{}
+	if err := s.DB.First(video, videoID).Error; err != nil {
+		return fmt.Errorf("video not found: %w", err)
+	}
+
+	video.Status = consts.VideoStatus(status)
+	if errorMessage != "" {
+		video.ErrorMessage = errorMessage
+	}
+
+	if status == string(consts.VideoStatusReady) {
+		video.ProcessedFilePath = fmt.Sprintf("s3://%s/hls/video_%d/playlist.m3u8", 
+			config.AppConfig.S3_BUCKET, videoID)
+	}
+
+	return s.DB.Save(video).Error
+}
+
+func (s *VideoProcessingService) ReceiveHLSFile(
+	videoID uint,
+	filename string,
+	fileContent multipart.File,
+) error {
+	video := &models.Video{}
+	if err := s.DB.First(video, videoID).Error; err != nil {
+		return fmt.Errorf("video not found: %w", err)
+	}
+
+	hlsFilename := fmt.Sprintf("video_%d/%s", videoID, filename)
+	_, err := s.Storage.SaveHLSPlaylist(fileContent, hlsFilename)
+	if err != nil {
+		return fmt.Errorf("failed to save HLS file: %w", err)
+	}
+
+	return nil
 }

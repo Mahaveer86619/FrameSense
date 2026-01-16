@@ -13,6 +13,8 @@ type Config struct {
 
 	PROFILE string
 
+	API_BASE_URL string
+
 	DB_HOST     string
 	DB_PORT     string
 	DB_USER     string
@@ -58,6 +60,8 @@ func LoadConfig() {
 	AppConfig = Config{
 		PORT:    getEnv("PORT", "7000"),
 		PROFILE: getEnv("PROFILE", "dev"),
+
+		API_BASE_URL: getEnv("API_BASE_URL", "http://localhost:7000"),
 
 		DB_HOST:     getEnv("DB_HOST", "localhost"),
 		DB_PORT:     getEnv("DB_PORT", "5432"),

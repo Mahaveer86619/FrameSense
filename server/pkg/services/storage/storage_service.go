@@ -25,6 +25,7 @@ type StorageService interface {
 
 	GeneratePresignedDownloadURL(path string, expiration time.Duration) (string, error)
 	GeneratePresignedUploadURL(filename string, expiration time.Duration) (string, error)
+	GenerateHLSUploadURL(videoID uint, filename string, expiration time.Duration) (string, error)
 
 	DeleteVideo(path string) error
 }

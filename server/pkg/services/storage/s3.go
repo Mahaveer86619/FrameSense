@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"strings"
 	"time"
@@ -10,9 +11,9 @@ import (
 )
 
 type S3StorageService struct {
-	Client         *s3.Client
-	Bucket         string
-	PresignClient  *s3.PresignClient
+	Client        *s3.Client
+	Bucket        string
+	PresignClient *s3.PresignClient
 }
 
 func NewS3StorageService(client *s3.Client, bucket string) *S3StorageService {
@@ -119,6 +120,25 @@ func (s *S3StorageService) GeneratePresignedUploadURL(
 	expiration time.Duration,
 ) (string, error) {
 	key := "processed/" + filename
+
+	req, err := s.PresignClient.PresignPutObject(context.TODO(), &s3.PutObjectInput{
+		Bucket: &s.Bucket,
+		Key:    &key,
+	}, s3.WithPresignExpires(expiration))
+
+	if err != nil {
+		return "", err
+	}
+
+	return req.URL, nil
+}
+
+func (s *S3StorageService) GenerateHLSUploadURL(
+	videoID uint,
+	filename string,
+	expiration time.Duration,
+) (string, error) {
+	key := fmt.Sprintf("hls/video_%d/%s", videoID, filename)
 
 	req, err := s.PresignClient.PresignPutObject(context.TODO(), &s3.PutObjectInput{
 		Bucket: &s.Bucket,
