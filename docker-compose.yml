@@ -16,6 +16,31 @@ services:
     networks:
       - framesense-network
 
+  worker:
+    container_name: framesense_worker
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    env_file:
+      - ./worker/.env
+    # environment:
+    #   - LOG_LEVEL=debug
+    volumes:
+      - /tmp:/tmp
+    restart: unless-stopped
+    depends_on:
+      - app
+    networks:
+      - framesense-network
+    # Uncomment below for GPU support (requires nvidia-docker2)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu, video]
+
   db:
     image: postgres:latest
     container_name: framesense_db
