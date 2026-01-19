@@ -1,4 +1,4 @@
-.PHONY: clean start rebuild logs setup-s3 restart
+.PHONY: clean start rebuild server-logs worker-logs setup-s3 restart
 
 # Stops containers and removes volumes (clears DB and LocalStack data)
 clean:
@@ -22,9 +22,12 @@ rebuild: clean start
 
 restart: down start
 
-# Follow logs from the server container
-logs:
+# Follow logs from the containers
+server-logs:
 	docker compose logs -f app
+
+worker-logs:
+	docker compose logs -f worker
 
 # Helper to create the bucket in LocalStack manually if needed
 setup-s3:
