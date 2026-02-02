@@ -21,6 +21,7 @@ func NewVideoProcessingHandler(
 	h := &VideoProcessingHandler{
 		Service: service,
 	}
+
 	g.POST("/videos", h.UploadVideo)
 	g.POST("/videos/:id/status", h.UpdateStatus)
 	g.POST("/videos/:id/hls/upload", h.UploadHLSFile)

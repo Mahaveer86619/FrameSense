@@ -21,11 +21,10 @@ func NewStreamingHandler(g *echo.Group, service *services.StreamingService) *Str
 		streamingService: service,
 	}
 
-	stream := g.Group("/stream")
-	stream.GET("/videos", handler.GetAllPlayableVideos)
-	stream.GET("/videos/:id", handler.GetVideoDetails)
-	stream.GET("/videos/:id/master.m3u8", handler.StreamMasterPlaylist)
-	stream.GET("/videos/:id/hls/*", handler.StreamHLSSegment)
+	g.GET("/videos", handler.GetAllPlayableVideos)
+	g.GET("/videos/:id", handler.GetVideoDetails)
+	g.GET("/videos/:id/master.m3u8", handler.StreamMasterPlaylist)
+	g.GET("/videos/:id/hls/*", handler.StreamHLSSegment)
 
 	return handler
 }

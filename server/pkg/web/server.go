@@ -69,12 +69,14 @@ func NewServer() *echo.Echo {
 	userService := services.NewUserService()
 	authService := services.NewAuthService(userService)
 	videoProcessingService := services.NewVideoProcessingService(storageService, queueService)
+	streamingService := services.NewStreamingService(storageService)
 
 	// Handlers
 	handlers.NewHealthHandler(api, healthService)
 	handlers.NewAuthHandler(auth, authService)
 	handlers.NewUserHandler(protected, userService)
 	handlers.NewVideoProcessingHandler(protected, videoProcessingService)
+	handlers.NewStreamingHandler(protected, streamingService)
 
 	return e
 }
